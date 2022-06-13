@@ -18,13 +18,11 @@ app.get("/urls.json", (req, res) => {
 app.get("/hello", (req, res) => {
   res.send("<html><body>Hello <b>World</b></body></html>\n")
 });
-app.get("/set", (req, res) => {
-  const a = 1;
-  res.send(`a = ${a}`);
- }); 
- app.get("/fetch", (req, res) => { //when client visit /fetch, the a will be undefined! a is not accessible in the other function/callback
-  res.send(`a = ${a}`);
- });
+app.get("/urls", (req,res) => {
+  const templateVars = { urls: urlDatabase };
+res.render("urls_index", templateVars) //name of a template and an object
+
+})
 
 app.listen(PORT, () => {
   console.log(`app is listening on port ${PORT}`)

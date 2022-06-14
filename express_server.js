@@ -24,22 +24,27 @@ app.get("/hello", (req, res) => {
 app.get("/urls", (req,res) => {
   const templateVars = { urls: urlDatabase };
 res.render("urls_index", templateVars) //name of a template and an object
-
 })
+
+app.get("/urls/new", (req, res) => {
+  res.render("urls_new");
+});
+
 app.get("/urls/:shortURL", (req, res) => {
   const longURL = urlDatabase[req.params.shortURL]
   const templateVars = { shortURL: req.params.shortURL, longURL };
   res.render("urls_show", templateVars);
 });
 
-app.get("/urls/new", (req, res) => {
-  res.render("urls_new");
+app.get("/urls/:id", (req, res) => {
+  res.render("urls_new")         
 });
 
 app.post("/urls", (req, res) => {
   console.log(req.body);  // Log the POST request body to the console
   res.send("Ok");         // Respond with 'Ok' (we will replace this)
 });
+
 
 app.listen(PORT, () => {
   console.log(`app is listening on port ${PORT}`)

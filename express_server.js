@@ -55,13 +55,19 @@ app.get("/u/:shortURL", (req, res) => { //this route will direct us to the longU
 app.post("/urls", (req, res) => {
   const id = generateRandomString()
   const longURL = req.body.longURL
-  urlDatabase[id] = longURL //
-  res.redirect(`/urls/:${id}`)    //
+  urlDatabase[id] = longURL /* */
+  res.redirect(`urls/:${id}`)    //
 });
 
+app.post("/urls/:shortURL/delete", (req,res) => {
+
+  delete urlDatabase[req.params.shortURL]
+
+  res.redirect("/urls") //??
+})
 
 
 app.listen(PORT, () => {
+
   console.log(`app is listening on port ${PORT}`)
 });
-

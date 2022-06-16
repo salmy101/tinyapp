@@ -63,10 +63,10 @@ app.get("/u/:shortURL", (req, res) => { //this route will direct us to the longU
 
 app.get("/urls/:shortURL", (req,res)=>{
   const shortURL = req.params.shortURL
-  console.log(req.params.shortURL)
+  // console.log(req.params.shortURL)
   const longURL =  urlDatabase[shortURL]
   const templateVars = {shortURL, longURL};
-  console.log(templateVars);
+  // console.log(templateVars);
   res.render("urls_show", templateVars)
 })
 
@@ -74,7 +74,7 @@ app.post("/urls/:shortURL", (req, res) => {
   const shortURL = req.params.shortURL
   const longURL = req.body.longURL
   console.log(shortURL);
-  urlDatabase[shortURL] = longURL
+  urlDatabase[shortURL] = longURL 
   res.redirect("/urls");
 });
 
@@ -82,8 +82,6 @@ app.post("/urls/:shortURL/delete", (req,res) => {
   delete urlDatabase[req.params.shortURL]
   res.redirect("/urls") //??
 })
-
-
 
 // app.post("/login", (req,res) => {
 //   res.cookie("req.body.username")

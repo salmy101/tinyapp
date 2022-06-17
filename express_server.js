@@ -55,11 +55,13 @@ app.post("/urls", (req, res) => {
 });
 
 app.get("/urls", (req,res) => {
-  const templateVars = { urls: urlDatabase , username: req.cookies["username"]}; //username wasnt define because /new use header.ejs
+  const user = users[req.cookies["user_id"]]
+  const templateVars = { urls: urlDatabase , username: user}; //username wasnt define because /new use header.ejs
 res.render("urls_index", templateVars) 
 })
 app.get("/urls/new", (req, res) => { 
-  const templateVars = { username: req.cookies["username"],};
+  const user = users[req.cookies["user_id"]]
+  const templateVars = { username: user};
   res.render("urls_new", templateVars); //this route renders the submission form urls_new to user
 });
 // app.get("/urls/:shortURL", (req, res) => { // routue to display a single URL and its shortened form
@@ -78,10 +80,11 @@ app.get("/u/:shortURL", (req, res) => { //this route will direct us to the longU
 });
 
 app.get("/urls/:shortURL", (req,res)=>{
+  const user = users[req.cookies["user_id"]]
   const shortURL = req.params.shortURL
   // console.log(req.params.shortURL)
   const longURL =  urlDatabase[shortURL]
-  const templateVars = {shortURL, longURL, username: req.cookies["username"]} ;
+  const templateVars = {shortURL, longURL, username: user} ;
   // console.log(templateVars);
   res.render("urls_show", templateVars)
 })
@@ -110,7 +113,9 @@ app.post("/logout", (req,res) => {
 })
 
 app.get('/register', (req, res) => {
-  const templateVars = {username: req.cookies["username"]}
+  const user = users[req.cookies["user_id"]]
+  // console.log(user);
+  const templateVars = {username: user}
   res.render('registration', templateVars)
 });
 
@@ -120,7 +125,7 @@ const email = req.body.email
 const password = req.body.password
 // console.log(id, email, password)
 users[id] = {id: id, email: email, password: password};
-// console.log(users)
+console.log(users)
 res.cookie("user_id", id)
 res.redirect("/urls")
 })

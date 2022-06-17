@@ -38,8 +38,6 @@ const users = {
   }
 }
 
-
-
 app.get('/', (req,res) => {
   res.redirect("/urls")
 });
@@ -85,7 +83,7 @@ app.get("/urls/:shortURL", (req,res)=>{
   const shortURL = req.params.shortURL
   // console.log(req.params.shortURL)
   const longURL =  urlDatabase[shortURL]
-  const templateVars = {shortURL, longURL, username: users[user]} ;
+  const templateVars = {shortURL, longURL, user: users[user]} ;
   // console.log(templateVars);
   res.render("urls_show", templateVars)
 })
@@ -102,16 +100,29 @@ app.post("/urls/:shortURL/delete", (req,res) => {
   res.redirect("/urls") 
 })
 
+app.get("/login", (req,res) => {
+  const user = req.cookies["user_id"]
+  const templateVars = {user: users[user]} ;
+  res.render("login", templateVars);
+})
+
 app.post("/login", (req,res) => {
   console.log(" ++++++++++++++++++", req.body);
-  const { email } = req.body
+  const email  = req.body.email
+  const password = req.body.password 
+  if(email === "") {
+    return res.status(400).send("email cannot be empty")
+  }
+  if(password === "") {
+    return res.status(400).send("password cannot be empty")
+
+  }
   let user
   for (const userid in users) { 
-    if (email === users[userid].email) {
+    if (email === users[userid].email && password === users[userid].password) {
        user = users[userid]
-    }
+    } 
   }
-
   if (!user) {
     return res.send("user not found")
   }

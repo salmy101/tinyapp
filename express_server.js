@@ -145,7 +145,6 @@ const email = req.body.email
     return res.status(400).send("password cannot be empty")
 
   }
-
   for (const user in users) {
     if (users[user].email === email) {
       return res.status(400).send("email already exist")

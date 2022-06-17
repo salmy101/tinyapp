@@ -1,9 +1,11 @@
 const express = require('express');
 const app = express(); //makes the server/app an object?
 const PORT = 8080
+const bodyParser = require("body-parser");
+// const res = require('express/lib/response');
+app.use(bodyParser.urlencoded({extended: true}));
 const cookieParser = require('cookie-parser')
 app.use(cookieParser())
-
 
 
 app.set("view engine", "ejs");
@@ -24,10 +26,10 @@ const urlDatabase = {
 }; 
 
 const users = { 
-  "userRandomID": {
-    id: "userRandomID", 
-    email: "user@example.com", 
-    password: "purple-monkey-dinosaur"
+  "a1": {
+    id: "a1", 
+    email: "a@a.com", 
+    password: "123"
   },
  "user2RandomID": {
     id: "user2RandomID", 
@@ -36,9 +38,7 @@ const users = {
   }
 }
 
-const bodyParser = require("body-parser");
-const res = require('express/lib/response');
-app.use(bodyParser.urlencoded({extended: true}));
+
 
 app.get('/', (req,res) => {
   res.redirect("/urls")
@@ -55,13 +55,14 @@ app.post("/urls", (req, res) => {
 });
 
 app.get("/urls", (req,res) => {
-  const user = users[req.cookies["user_id"]]
-  const templateVars = { urls: urlDatabase , username: user}; //username wasnt define because /new use header.ejs
+  const userID = req.cookies["user_id"] //const user = users[req.cookies["user_id"]] 
+  const templateVars = { urls: urlDatabase , user: users[userID]}; //username wasnt define because /new use header.ejs
 res.render("urls_index", templateVars) 
-})
+}) 
+
 app.get("/urls/new", (req, res) => { 
-  const user = users[req.cookies["user_id"]]
-  const templateVars = { username: user};
+  const userID = req.cookies["user_id"] //const user = users[req.cookies["user_id"]]
+  const templateVars = {user: users[userID]};
   res.render("urls_new", templateVars); //this route renders the submission form urls_new to user
 });
 // app.get("/urls/:shortURL", (req, res) => { // routue to display a single URL and its shortened form
@@ -80,11 +81,11 @@ app.get("/u/:shortURL", (req, res) => { //this route will direct us to the longU
 });
 
 app.get("/urls/:shortURL", (req,res)=>{
-  const user = users[req.cookies["user_id"]]
+  const user = req.cookies["user_id"] //const user = users[req.cookies["user_id"]]
   const shortURL = req.params.shortURL
   // console.log(req.params.shortURL)
   const longURL =  urlDatabase[shortURL]
-  const templateVars = {shortURL, longURL, username: user} ;
+  const templateVars = {shortURL, longURL, username: users[user]} ;
   // console.log(templateVars);
   res.render("urls_show", templateVars)
 })
@@ -92,43 +93,70 @@ app.get("/urls/:shortURL", (req,res)=>{
 app.post("/urls/:shortURL", (req, res) => { 
   const shortURL = req.params.shortURL
   const longURL = req.body.longURL
-  console.log(shortURL);
   urlDatabase[shortURL] = longURL 
   res.redirect("/urls");
 });
 
 app.post("/urls/:shortURL/delete", (req,res) => {
   delete urlDatabase[req.params.shortURL]
-  res.redirect("/urls") //??
+  res.redirect("/urls") 
 })
 
 app.post("/login", (req,res) => {
-  res.cookie("username", req.body.username) //res.cookie = giving user a cookie mailing id
-  res.redirect("/urls") //!!!
+  console.log(" ++++++++++++++++++", req.body);
+  const { email } = req.body
+  let user
+  for (const userid in users) { 
+    if (email === users[userid].email) {
+       user = users[userid]
+    }
+  }
+
+  if (!user) {
+    return res.send("user not found")
+  }
+
+  console.log("----------", user)
+  res.cookie("user_id", user.id)
+  // res.cookie("username", req.body.username) //res.cookie = giving user a cookie mailing id
+  res.redirect("/urls") 
 })
 
 app.post("/logout", (req,res) => {
-  res.clearCookie("username") // delete request cookie, take it back and dipose
+  res.clearCookie("user_id") // delete request cookie, take it back and dipose
   res.redirect("/urls")
 })
 
 app.get('/register', (req, res) => {
-  const user = users[req.cookies["user_id"]]
-  // console.log(user);
-  const templateVars = {username: user}
+  const userID = req.cookies["user_id"] //const user = users[req.cookies["user_id"]]
+  const templateVars = {user: users[userID]}
   res.render('registration', templateVars)
 });
 
 app.post('/register', (req, res) => {
+  console.log(req.body)
 const id = generateRandomString()
-const email = req.body.email
 const password = req.body.password
-// console.log(id, email, password)
-users[id] = {id: id, email: email, password: password};
+const email = req.body.email 
+  if(email === "") {
+    return res.status(400).send("email cannot be empty")
+  }
+  if(password === "") {
+    return res.status(400).send("password cannot be empty")
+
+  }
+
+  for (const user in users) {
+    if (users[user].email === email) {
+      return res.status(400).send("email already exist")
+    }
+  }
+
+users[id] = {id: id, email: email, password: password}; 
 console.log(users)
 res.cookie("user_id", id)
 res.redirect("/urls")
-})
+});
 
 app.listen(PORT, () => {
   console.log(`app is listening on port ${PORT}`)

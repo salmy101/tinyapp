@@ -12,17 +12,17 @@
 
       </div> 
     </div> 
-    <% if(username) {%>
+    <% if(user) {%>
       <div> 
+        <%= user.email %>
         <form class = "form-inline" action="/logout" method="POST">
-        <!-- <input class="form-control" type="text" name="username" placeholder="Username" style="width: 300px; margin: 1em"> -->
         <button type="submit" class="btn btn-outline-dark">Logout</button>
       </form>
     </div>
     <% } else { %>
       <div> 
         <form class = "form-inline" action="/login" method="POST">
-        <input class="form-control" type="text" name="username" placeholder="Username" style="width: 300px; margin: 1em">
+        <input class="form-control" type="text" name="email" value="" placeholder= "" style="width: 300px; margin: 1em">
         <button type="submit" class="btn btn-outline-dark">Login</button>
       </form>
     </div>
@@ -30,3 +30,4 @@
 
   </nav>
 </header>
+

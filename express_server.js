@@ -21,8 +21,20 @@ function generateRandomString() {
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com", 
-
 }; 
+
+const users = { 
+  "userRandomID": {
+    id: "userRandomID", 
+    email: "user@example.com", 
+    password: "purple-monkey-dinosaur"
+  },
+ "user2RandomID": {
+    id: "user2RandomID", 
+    email: "user2@example.com", 
+    password: "dishwasher-funk"
+  }
+}
 
 const bodyParser = require("body-parser");
 const res = require('express/lib/response');
@@ -95,6 +107,22 @@ app.post("/login", (req,res) => {
 app.post("/logout", (req,res) => {
   res.clearCookie("username") // delete request cookie, take it back and dipose
   res.redirect("/urls")
+})
+
+app.get('/register', (req, res) => {
+  const templateVars = {username: req.cookies["username"]}
+  res.render('registration', templateVars)
+});
+
+app.post('/register', (req, res) => {
+const id = generateRandomString()
+const email = req.body.email
+const password = req.body.password
+// console.log(id, email, password)
+users[id] = {id: id, email: email, password: password};
+// console.log(users)
+res.cookie("user_id", id)
+res.redirect("/urls")
 })
 
 app.listen(PORT, () => {

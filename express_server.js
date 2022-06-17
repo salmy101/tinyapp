@@ -2,11 +2,8 @@ const express = require('express');
 const app = express(); //makes the server/app an object?
 const PORT = 8080
 const cookieParser = require('cookie-parser')
-<<<<<<< HEAD
 app.use(cookieParser())
 
-=======
->>>>>>> master
 
 
 app.set("view engine", "ejs");
@@ -49,14 +46,9 @@ app.get("/urls", (req,res) => {
   const templateVars = { urls: urlDatabase , username: req.cookies["username"]}; //username wasnt define because /new use header.ejs
 res.render("urls_index", templateVars) 
 })
-<<<<<<< HEAD
 app.get("/urls/new", (req, res) => { 
   const templateVars = { username: req.cookies["username"],};
   res.render("urls_new", templateVars); //this route renders the submission form urls_new to user
-=======
-app.get("/urls/new", (req, res) => { //place this above the next route so it does not mistake /new as an id
-  res.render("urls_new"); //this route renders the submission form urls_new to user
->>>>>>> master
 });
 // app.get("/urls/:shortURL", (req, res) => { // routue to display a single URL and its shortened form
 //   const longURL = urlDatabase[req.params.shortURL]
@@ -77,11 +69,7 @@ app.get("/urls/:shortURL", (req,res)=>{
   const shortURL = req.params.shortURL
   // console.log(req.params.shortURL)
   const longURL =  urlDatabase[shortURL]
-<<<<<<< HEAD
   const templateVars = {shortURL, longURL, username: req.cookies["username"]} ;
-=======
-  const templateVars = {shortURL, longURL};
->>>>>>> master
   // console.log(templateVars);
   res.render("urls_show", templateVars)
 })
@@ -99,7 +87,6 @@ app.post("/urls/:shortURL/delete", (req,res) => {
   res.redirect("/urls") //??
 })
 
-<<<<<<< HEAD
 app.post("/login", (req,res) => {
   res.cookie("username", req.body.username) //res.cookie = giving user a cookie mailing id
   res.redirect("/urls") //!!!
@@ -110,12 +97,6 @@ app.post("/logout", (req,res) => {
   res.redirect("/urls")
 })
 
-=======
-// app.post("/login", (req,res) => {
-//   res.cookie("req.body.username")
-// })
-
->>>>>>> master
 app.listen(PORT, () => {
   console.log(`app is listening on port ${PORT}`)
 });

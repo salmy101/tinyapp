@@ -1,8 +1,8 @@
 const express = require('express');
 const app = express(); //makes the server/app an object?
-const PORT = 3000
+const PORT = 8080
 const bodyParser = require("body-parser");
-// const res = require('express/lib/response');
+const res = require('express/lib/response');
 app.use(bodyParser.urlencoded({extended: true}));
 const cookieParser = require('cookie-parser')
 app.use(cookieParser())
@@ -31,15 +31,6 @@ const urlDatabase = {
     }
 }; 
 
-const usersURL = function (userID , urlDatabase) { //loop the new database 
-  let newObj = {}
-    for(const shortURL in urlDatabase) { //access the shortURL and values
-      if (urlDatabase[shortURL].userID === userID) { //if id matches add to new obj for user
-        newObj[shortURL] = urlDatabase[shortURL]
-      }
-    }
-    return newObj
-}
 
 const users = { 
   "a1": {
@@ -54,6 +45,17 @@ const users = {
   }
 }
 
+const usersURL = function (userID , urlDatabase) { //loop the new database 
+  let newObj = {}
+    for(const shortURL in urlDatabase) { //access the shortURL and values
+      if (urlDatabase[shortURL].userID === userID) { //if id matches add to new obj for user
+        newObj[shortURL] = urlDatabase[shortURL]
+        // console.log(newObj)
+      }
+    }
+    return newObj
+}
+
 app.get('/', (req,res) => {
   res.redirect("/urls")
 });
@@ -62,15 +64,17 @@ app.get("/urls.json", (req, res) => {
 });
 
 app.post("/urls", (req, res) => {
+  const userID = req.cookies["user_id"]
   const id = generateRandomString()
   const longURL = req.body.longURL
-  urlDatabase[id] = longURL /* */
+  urlDatabase[id] = {longURL, userID} /* */
   res.redirect(`urls/${id}`)    //
 });
 
 app.get("/urls", (req,res) => {
   const userID = req.cookies["user_id"] //const user = users[req.cookies["user_id"]] 
-  const templateVars = { urls: urlDatabase , user: users[userID]}; //username wasnt define because /new use header.ejs
+  const newURLs = usersURL(userID, urlDatabase)
+  const templateVars = { urls: newURLs , user: users[userID]}; //username wasnt define because /new use header.ejs
 res.render("urls_index", templateVars) 
 }) 
 
@@ -80,8 +84,7 @@ app.get("/urls/new", (req, res) => {
   if (!userID) {
     res.redirect("/login")
   } else {
-    const newURL = usersURL(userID, urlDatabase)
-    const templateVars = {user: userID, newURL};    
+    const templateVars = {user: userID};    
   res.render("urls_new", templateVars); //this route renders the submission form urls_new to user
   }
 }); 

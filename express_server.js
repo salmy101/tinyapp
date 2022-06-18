@@ -1,6 +1,6 @@
 const express = require('express');
 const app = express(); //makes the server/app an object?
-const PORT = 8080
+const PORT = 3000
 const bodyParser = require("body-parser");
 // const res = require('express/lib/response');
 app.use(bodyParser.urlencoded({extended: true}));
@@ -21,9 +21,25 @@ function generateRandomString() {
 }  
 
 const urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com", 
+  b6UTxQ: {
+        longURL: "https://www.tsn.ca",
+        userID: "aJ48lW"
+    },
+    i3BoGr: {
+        longURL: "https://www.google.ca",
+        userID: "aJ48lW"
+    }
 }; 
+
+const usersURL = function (userID , urlDatabase) { //loop the new database 
+  let newObj = {}
+    for(const shortURL in urlDatabase) { //access the shortURL and values
+      if (urlDatabase[shortURL].userID === userID) { //if id matches add to new obj for user
+        newObj[shortURL] = urlDatabase[shortURL]
+      }
+    }
+    return newObj
+}
 
 const users = { 
   "a1": {
@@ -59,16 +75,16 @@ res.render("urls_index", templateVars)
 }) 
 
 
-
 app.get("/urls/new", (req, res) => { 
   const userID = req.cookies["user_id"] //const user = users[req.cookies["user_id"]]
-  const templateVars = {user: userID};
   if (!userID) {
-    res.render("login", templateVars)
+    res.redirect("/login")
   } else {
-    res.render("urls_new", templateVars); //this route renders the submission form urls_new to user
+    const newURL = usersURL(userID, urlDatabase)
+    const templateVars = {user: userID, newURL};    
+  res.render("urls_new", templateVars); //this route renders the submission form urls_new to user
   }
-});
+}); 
 
 
 

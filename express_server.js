@@ -58,11 +58,22 @@ app.get("/urls", (req,res) => {
 res.render("urls_index", templateVars) 
 }) 
 
+
+
 app.get("/urls/new", (req, res) => { 
   const userID = req.cookies["user_id"] //const user = users[req.cookies["user_id"]]
-  const templateVars = {user: users[userID]};
-  res.render("urls_new", templateVars); //this route renders the submission form urls_new to user
+  const templateVars = {user: userID};
+  if (!userID) {
+    res.render("login", templateVars)
+  } else {
+    res.render("urls_new", templateVars); //this route renders the submission form urls_new to user
+  }
 });
+
+
+
+
+
 // app.get("/urls/:shortURL", (req, res) => { // routue to display a single URL and its shortened form
 //   const longURL = urlDatabase[req.params.shortURL]
 //   const templateVars = { shortURL: req.params.shortURL, longURL }; //??

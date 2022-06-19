@@ -1,8 +1,8 @@
 const express = require('express');
 const PORT = 8080
-const app = express(); //makes the server/app an object?
+const app = express(); 
 app.set("view engine", "ejs");
-
+const { generateRandomString, usersURL}= require("./views/helpers");
 const bodyParser = require("body-parser");
 // const res = require('express/lib/response');
 app.use(bodyParser.urlencoded({extended: true}));
@@ -17,19 +17,6 @@ app.use(cookieSession({
   keys: ["this string is a secret key"],
   maxAge: 24 * 60 * 60 * 1000 // 24 hours
 }))
-
-
-function generateRandomString() {
-  const list = "ABCDEFGHIJKLMNPQRSTUVWXYZabcdefghijklmnopqrstuvqxyz123456789";
-  let output = "";
-  for (let i = 0; i <= 6; i++) {
-    let random = Math.floor(Math.random() * list.length)
-    output += list.charAt(random);
-  } 
-  return output
-}  
-
-
 
 const urlDatabase = {
   b6UTxQ: {
@@ -54,16 +41,6 @@ const users = {
     password: "dishwasher-funk"
   }
 } 
-const usersURL = function (userID , urlDatabase) { //loop the new database 
-  let newObj = {}
-    for(const shortURL in urlDatabase) { //access the shortURL and values
-      if (urlDatabase[shortURL].userID === userID) { //if id matches add to new obj for user
-        newObj[shortURL] = urlDatabase[shortURL]
-        // console.log(newObj)
-      }
-    }
-    return newObj
-} 
 
 
 app.get('/', (req,res) => {
@@ -85,11 +62,10 @@ app.post("/urls", (req, res) => {
 app.get("/urls", (req,res) => {
   let templateVars = {urls: null, user: null}
   if (req.session) {
-      // const userID = req.cookies["user_id"] //const user = users[req.cookies["user_id"]]
-      console.log("session userID", req.session.user_id);
-      console.log("users database", users);
+      // console.log("session userID", req.session.user_id);
+      // console.log("users database", users);
       templateVars.user = users[req.session.user_id]
-      console.log("+++++++", req.session)
+      // console.log("+++++++", req.session)
       templateVars.urls = usersURL(req.session.user_id, urlDatabase) 
   } 
 res.render("urls_index", templateVars) 
@@ -115,9 +91,9 @@ app.get("/urls/:shortURL", (req,res)=>{
   // const user = req.cookies["user_id"] //const user = users[req.cookies["user_id"]]
   const user = users[req.session.user_id]
   const shortURL = req.params.shortURL
-  console.log("--------", shortURL, urlDatabase)
+  // console.log("--------", shortURL, urlDatabase)
   const longURL =  urlDatabase[shortURL].longURL
-  console.log("longURL", longURL);
+  // console.log("longURL", longURL);
   const templateVars = {shortURL, longURL, user} ;
   // console.log(templateVars);
   res.render("urls_show", templateVars)
@@ -153,7 +129,7 @@ app.post("/login", (req,res) => {
   }
   let user
   for (const userID in users) { 
-    console.log("-------------", users[userID])
+    // console.log("-------------", users[userID])
     if (email === users[userID].email && bcrypt.compareSync(password, users[userID].hashedPassword)) {
        user = users[userID]
     } 
@@ -162,7 +138,7 @@ app.post("/login", (req,res) => {
     return res.send("user not found, please register new account")
   }
 
-  console.log("----------", user) 
+  // console.log("----------", user) 
   req.session.user_id = user.id// res.cookie("user_id", user.id) 
   res.redirect("/urls") 
 })
@@ -199,7 +175,7 @@ const email = req.body.email
     }
   }
 users[id] = {id: id, email: email, hashedPassword}; 
-console.log("user after registration", users)
+// console.log("user after registration", users)
 req.session.user_id = id //res.cookie("user_id", id) 
 res.redirect("/urls")
 });

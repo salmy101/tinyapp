@@ -93,6 +93,8 @@ app.post("/urls", (req, res) => {
 app.get("/urls", (req,res) => {
   // const userID = req.cookies["user_id"] //const user = users[req.cookies["user_id"]]
   const user = users[req.session.user_id]
+  console.log("+++++++++++", users);
+  console.log("+++++++", req.session)
   const newURLs = usersURL(user, urlDatabase) //user as in the cookie session line 95
   const templateVars = { urls: newURLs , user }; //username wasnt define because /new use header.ejs
 res.render("urls_index", templateVars) 
@@ -147,7 +149,6 @@ app.post("/login", (req,res) => {
   // console.log(" ++++++++++++++++++", req.body);
   const email  = req.body.email
   const password = req.body.password 
-  // let userID = getUserEmail(email,users)
   if(email === "") {
     return res.status(400).send("email cannot be empty")
   }
@@ -165,8 +166,8 @@ app.post("/login", (req,res) => {
     return res.send("user not found, please register new account")
   }
 
-  // console.log("----------", user)
-  req.session.user_id // res.cookie("user_id", user.id) 
+  console.log("----------", user) 
+  req.session.user_id = user.id// res.cookie("user_id", user.id) 
   res.redirect("/urls") 
 })
 
@@ -202,8 +203,8 @@ const email = req.body.email
     }
   }
 users[id] = {id: id, email: email, hashedPassword}; 
-console.log(users)
-req.session.user_id //res.cookie("user_id", id) 
+console.log("user after registration", users)
+req.session.user_id = id //res.cookie("user_id", id) 
 res.redirect("/urls")
 });
 

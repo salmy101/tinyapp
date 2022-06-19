@@ -65,14 +65,6 @@ const usersURL = function (userID , urlDatabase) { //loop the new database
     return newObj
 } 
 
-// const getUserEmail = function(email, users) {
-//   for (let userID in users) {
-//     if (users[userID].email === email)
-//     return users[userID]
-
-//   }
-// }
-
 
 app.get('/', (req,res) => {
   res.redirect("/urls")
@@ -83,20 +75,23 @@ app.get("/urls.json", (req, res) => {
 });
 
 app.post("/urls", (req, res) => {
-  const user = users[req.session.user_id]
-  const id = generateRandomString()
+  const userID = users[req.session.user_id].id
+  const shortURL = generateRandomString()
   const longURL = req.body.longURL
-  urlDatabase[id] = {longURL, user} /* */
-  res.redirect(`urls/${id}`)    //
+  urlDatabase[shortURL] = {longURL, userID} /* */
+  res.redirect(`urls/${shortURL}`)    //
 });
 
 app.get("/urls", (req,res) => {
-  // const userID = req.cookies["user_id"] //const user = users[req.cookies["user_id"]]
-  const user = users[req.session.user_id]
-  console.log("+++++++++++", users);
-  console.log("+++++++", req.session)
-  const newURLs = usersURL(user, urlDatabase) //user as in the cookie session line 95
-  const templateVars = { urls: newURLs , user }; //username wasnt define because /new use header.ejs
+  let templateVars = {urls: null, user: null}
+  if (req.session) {
+      // const userID = req.cookies["user_id"] //const user = users[req.cookies["user_id"]]
+      console.log("session userID", req.session.user_id);
+      console.log("users database", users);
+      templateVars.user = users[req.session.user_id]
+      console.log("+++++++", req.session)
+      templateVars.urls = usersURL(req.session.user_id, urlDatabase) 
+  } 
 res.render("urls_index", templateVars) 
 }) 
 
@@ -121,7 +116,8 @@ app.get("/urls/:shortURL", (req,res)=>{
   const user = users[req.session.user_id]
   const shortURL = req.params.shortURL
   console.log("--------", shortURL, urlDatabase)
-  const longURL =  urlDatabase[shortURL]
+  const longURL =  urlDatabase[shortURL].longURL
+  console.log("longURL", longURL);
   const templateVars = {shortURL, longURL, user} ;
   // console.log(templateVars);
   res.render("urls_show", templateVars)

@@ -9,6 +9,7 @@ app.use(bodyParser.urlencoded({extended: true}));
 const cookieParser = require('cookie-parser')
 app.use(cookieParser())
 
+const bcrypt = require('bcryptjs');
 
 
 function generateRandomString() {
@@ -21,6 +22,25 @@ function generateRandomString() {
   return output
 }  
 
+const usersURL = function (userID , urlDatabase) { //loop the new database 
+  let newObj = {}
+    for(const shortURL in urlDatabase) { //access the shortURL and values
+      if (urlDatabase[shortURL].userID === userID) { //if id matches add to new obj for user
+        newObj[shortURL] = urlDatabase[shortURL]
+        // console.log(newObj)
+      }
+    }
+    return newObj
+} 
+
+const getUsersEmail = function(email, urlDatabase) {
+  for (let userID in users) {
+    if (users[userID].email === email)
+    return users[userID]
+
+  }
+}
+
 const urlDatabase = {
   b6UTxQ: {
         longURL: "https://www.tsn.ca",
@@ -31,7 +51,6 @@ const urlDatabase = {
         userID: "aJ48lW"
     }
 }; 
-
 
 const users = { 
   "a1": {
@@ -47,31 +66,10 @@ const users = {
 } 
 
 
-// for (let shortURL in urlDatabase) {
-//   if(userID === urlDatabase[shortURL].userID)
-
-
-
-// }
-
-
-const usersURL = function (userID , urlDatabase) { //loop the new database 
-  let newObj = {}
-    for(const shortURL in urlDatabase) { //access the shortURL and values
-      if (urlDatabase[shortURL].userID === userID) { //if id matches add to new obj for user
-        newObj[shortURL] = urlDatabase[shortURL]
-        // console.log(newObj)
-      }
-    }
-    return newObj
-}
-
-
 
 app.get('/', (req,res) => {
   res.redirect("/urls")
 });
-
 
 app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
@@ -92,7 +90,6 @@ app.get("/urls", (req,res) => {
 res.render("urls_index", templateVars) 
 }) 
 
-
 app.get("/urls/new", (req, res) => { 
   const userID = req.cookies["user_id"] //const user = users[req.cookies["user_id"]]
   if (!userID) {
@@ -102,20 +99,6 @@ app.get("/urls/new", (req, res) => {
   res.render("urls_new", templateVars); //this route renders the submission form urls_new to user
   }
 }); 
-
-
-
-
-
-// app.get("/urls/:shortURL", (req, res) => { // routue to display a single URL and its shortened form
-//   const longURL = urlDatabase[req.params.shortURL]
-//   const templateVars = { shortURL: req.params.shortURL, longURL }; //??
-//   res.render("urls_show", templateVars);
-// });
-
-// app.get("/urls/:id", (req, res) => { // ^^^ the id if the ID of the long url was b2xVn2, then the url would look like /urls/b2xVn2
-//   res.render("urls_new")         
-// });
 
 app.get("/u/:shortURL", (req, res) => { //this route will direct us to the longURL
   const longURL = urlDatabase[req.params.shortURL]
@@ -140,9 +123,7 @@ app.post("/urls/:shortURL", (req, res) => {
 });
 
 app.post("/urls/:shortURL/delete", (req,res) => {
-  // if (urlDatabase[shortURL].userID === userID) { //if the userID matchs the one in the database then they can delte
-    delete urlDatabase[req.params.shortURL]
-  // } 
+  delete urlDatabase[req.params.shortURL]
   res.redirect("/urls") 
 })
 
@@ -161,22 +142,22 @@ app.post("/login", (req,res) => {
   }
   if(password === "") {
     return res.status(400).send("password cannot be empty")
-
   }
+  let userID = getUsersEmail(email,users)
   let user
-  for (const userid in users) { 
-    if (email === users[userid].email && password === users[userid].password) {
-       user = users[userid]
-    } 
-  }
-  if (!user) {
-    return res.send("user not found, please register new account")
+    if (userID && bcrypt.compareSync(password, users[userID].hashedPassword)); {
+       user = users[userID]
+       res.cookie("user_id", user.id)
+       res.redirect("/urls") 
+
+    } if (!user) {
+    return res.status(400).send("user not found, please register new account")
   }
 
   // console.log("----------", user)
-  res.cookie("user_id", user.id)
+  // res.cookie("user_id", user.id)
   // res.cookie("username", req.body.username) //res.cookie = giving user a cookie mailing id
-  res.redirect("/urls") 
+  // res.redirect("/urls") 
 })
 
 app.post("/logout", (req,res) => {
@@ -194,21 +175,20 @@ app.post('/register', (req, res) => {
   // console.log(req.body)
 const id = generateRandomString()
 const password = req.body.password
+const hashedPassword = bcrypt.hashSync(password, 10);
 const email = req.body.email 
   if(email === "") {
     return res.status(400).send("email cannot be empty")
   }
   if(password === "") {
     return res.status(400).send("password cannot be empty")
-
   }
   for (const user in users) {
     if (users[user].email === email) {
       return res.status(400).send("email already exist")
     }
   }
-
-users[id] = {id: id, email: email, password: password}; 
+users[id] = {id: id, email: email, hashedPassword}; 
 // console.log(users)
 res.cookie("user_id", id)
 res.redirect("/urls")

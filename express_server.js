@@ -1,6 +1,8 @@
 const express = require('express');
-const app = express(); //makes the server/app an object?
 const PORT = 8080
+const app = express(); //makes the server/app an object?
+app.set("view engine", "ejs");
+
 const bodyParser = require("body-parser");
 const res = require('express/lib/response');
 app.use(bodyParser.urlencoded({extended: true}));
@@ -8,7 +10,6 @@ const cookieParser = require('cookie-parser')
 app.use(cookieParser())
 
 
-app.set("view engine", "ejs");
 
 function generateRandomString() {
   const list = "ABCDEFGHIJKLMNPQRSTUVWXYZabcdefghijklmnopqrstuvqxyz123456789";
@@ -43,7 +44,16 @@ const users = {
     email: "user2@example.com", 
     password: "dishwasher-funk"
   }
-}
+} 
+
+
+// for (let shortURL in urlDatabase) {
+//   if(userID === urlDatabase[shortURL].userID)
+
+
+
+// }
+
 
 const usersURL = function (userID , urlDatabase) { //loop the new database 
   let newObj = {}
@@ -56,9 +66,13 @@ const usersURL = function (userID , urlDatabase) { //loop the new database
     return newObj
 }
 
+
+
 app.get('/', (req,res) => {
   res.redirect("/urls")
 });
+
+
 app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
 });
@@ -111,7 +125,7 @@ app.get("/u/:shortURL", (req, res) => { //this route will direct us to the longU
 app.get("/urls/:shortURL", (req,res)=>{
   const user = req.cookies["user_id"] //const user = users[req.cookies["user_id"]]
   const shortURL = req.params.shortURL
-  // console.log(req.params.shortURL)
+  console.log("--------", shortURL, urlDatabase)
   const longURL =  urlDatabase[shortURL]
   const templateVars = {shortURL, longURL, user: users[user]} ;
   // console.log(templateVars);
@@ -121,12 +135,14 @@ app.get("/urls/:shortURL", (req,res)=>{
 app.post("/urls/:shortURL", (req, res) => { 
   const shortURL = req.params.shortURL
   const longURL = req.body.longURL
-  urlDatabase[shortURL] = longURL 
+  urlDatabase[shortURL].longURL = longURL //urlDatabase[shortURL] = longURL 
   res.redirect("/urls");
 });
 
 app.post("/urls/:shortURL/delete", (req,res) => {
-  delete urlDatabase[req.params.shortURL]
+  // if (urlDatabase[shortURL].userID === userID) { //if the userID matchs the one in the database then they can delte
+    delete urlDatabase[req.params.shortURL]
+  // } 
   res.redirect("/urls") 
 })
 
@@ -137,7 +153,7 @@ app.get("/login", (req,res) => {
 })
 
 app.post("/login", (req,res) => {
-  console.log(" ++++++++++++++++++", req.body);
+  // console.log(" ++++++++++++++++++", req.body);
   const email  = req.body.email
   const password = req.body.password 
   if(email === "") {
@@ -154,10 +170,10 @@ app.post("/login", (req,res) => {
     } 
   }
   if (!user) {
-    return res.send("user not found")
+    return res.send("user not found, please register new account")
   }
 
-  console.log("----------", user)
+  // console.log("----------", user)
   res.cookie("user_id", user.id)
   // res.cookie("username", req.body.username) //res.cookie = giving user a cookie mailing id
   res.redirect("/urls") 
@@ -175,7 +191,7 @@ app.get('/register', (req, res) => {
 });
 
 app.post('/register', (req, res) => {
-  console.log(req.body)
+  // console.log(req.body)
 const id = generateRandomString()
 const password = req.body.password
 const email = req.body.email 
@@ -193,7 +209,7 @@ const email = req.body.email
   }
 
 users[id] = {id: id, email: email, password: password}; 
-console.log(users)
+// console.log(users)
 res.cookie("user_id", id)
 res.redirect("/urls")
 });

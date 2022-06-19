@@ -22,24 +22,7 @@ function generateRandomString() {
   return output
 }  
 
-const usersURL = function (userID , urlDatabase) { //loop the new database 
-  let newObj = {}
-    for(const shortURL in urlDatabase) { //access the shortURL and values
-      if (urlDatabase[shortURL].userID === userID) { //if id matches add to new obj for user
-        newObj[shortURL] = urlDatabase[shortURL]
-        // console.log(newObj)
-      }
-    }
-    return newObj
-} 
 
-const getUsersEmail = function(email, urlDatabase) {
-  for (let userID in users) {
-    if (users[userID].email === email)
-    return users[userID]
-
-  }
-}
 
 const urlDatabase = {
   b6UTxQ: {
@@ -64,7 +47,24 @@ const users = {
     password: "dishwasher-funk"
   }
 } 
+const usersURL = function (userID , urlDatabase) { //loop the new database 
+  let newObj = {}
+    for(const shortURL in urlDatabase) { //access the shortURL and values
+      if (urlDatabase[shortURL].userID === userID) { //if id matches add to new obj for user
+        newObj[shortURL] = urlDatabase[shortURL]
+        // console.log(newObj)
+      }
+    }
+    return newObj
+} 
 
+const getUserEmail = function(email, users) {
+  for (let userID in users) {
+    if (users[userID].email === email)
+    return users[userID]
+
+  }
+}
 
 
 app.get('/', (req,res) => {
@@ -137,28 +137,31 @@ app.post("/login", (req,res) => {
   // console.log(" ++++++++++++++++++", req.body);
   const email  = req.body.email
   const password = req.body.password 
+  // let userID = getUserEmail(email,users)
   if(email === "") {
     return res.status(400).send("email cannot be empty")
   }
   if(password === "") {
     return res.status(400).send("password cannot be empty")
   }
-  let userID = getUsersEmail(email,users)
   let user
-    if (userID && bcrypt.compareSync(password, users[userID].hashedPassword)); {
+  for (const userID in users) { 
+    console.log("-------------", users[userID])
+    if (email === users[userID].email && bcrypt.compareSync(password, users[userID].hashedPassword)) {
        user = users[userID]
-       res.cookie("user_id", user.id)
-       res.redirect("/urls") 
-
-    } if (!user) {
-    return res.status(400).send("user not found, please register new account")
+    } 
+  }
+  if (!user) {
+    return res.send("user not found, please register new account")
   }
 
   // console.log("----------", user)
-  // res.cookie("user_id", user.id)
+  res.cookie("user_id", user.id)
   // res.cookie("username", req.body.username) //res.cookie = giving user a cookie mailing id
-  // res.redirect("/urls") 
+  res.redirect("/urls") 
 })
+
+
 
 app.post("/logout", (req,res) => {
   res.clearCookie("user_id") // delete request cookie, take it back and dipose
@@ -189,7 +192,7 @@ const email = req.body.email
     }
   }
 users[id] = {id: id, email: email, hashedPassword}; 
-// console.log(users)
+console.log(users)
 res.cookie("user_id", id)
 res.redirect("/urls")
 });

@@ -55,54 +55,49 @@ app.post("/urls", (req, res) => {
   const userID = users[req.session.user_id].id
   const shortURL = generateRandomString()
   const longURL = req.body.longURL
-  urlDatabase[shortURL] = {longURL, userID} /* */
-  res.redirect(`urls/${shortURL}`)    //
+  urlDatabase[shortURL] = {longURL, userID} 
+  res.redirect(`urls/${shortURL}`)    
 });
 
+//this route renderd the urls page, shows empty if not logged/ you logout in, shows all urls if logged in
 app.get("/urls", (req,res) => {
   let templateVars = {urls: null, user: null}
   if (req.session) {
-      // console.log("session userID", req.session.user_id);
-      // console.log("users database", users);
       templateVars.user = users[req.session.user_id]
-      // console.log("+++++++", req.session)
       templateVars.urls = usersURL(req.session.user_id, urlDatabase) 
   } 
 res.render("urls_index", templateVars) 
 }) 
 
+//this route renders the submission form urls_new to user
 app.get("/urls/new", (req, res) => { 
-  // const userID = req.cookies["user_id"] //const user = users[req.cookies["user_id"]]
   const user = users[req.session.user_id]
   if (!user) {
     res.redirect("/login")
   } else {
     const templateVars = { user };    
-  res.render("urls_new", templateVars); //this route renders the submission form urls_new to user
+  res.render("urls_new", templateVars); 
   }
 }); 
 
-app.get("/u/:shortURL", (req, res) => { //this route will direct us to the longURL
+//this route will direct us to the longURL
+app.get("/u/:shortURL", (req, res) => { 
   const longURL = urlDatabase[req.params.shortURL]
   res.redirect(longURL);
 });
 
 app.get("/urls/:shortURL", (req,res)=>{
-  // const user = req.cookies["user_id"] //const user = users[req.cookies["user_id"]]
   const user = users[req.session.user_id]
   const shortURL = req.params.shortURL
-  // console.log("--------", shortURL, urlDatabase)
   const longURL =  urlDatabase[shortURL].longURL
-  // console.log("longURL", longURL);
   const templateVars = {shortURL, longURL, user} ;
-  // console.log(templateVars);
   res.render("urls_show", templateVars)
 })
 
 app.post("/urls/:shortURL", (req, res) => { 
   const shortURL = req.params.shortURL
   const longURL = req.body.longURL
-  urlDatabase[shortURL].longURL = longURL //urlDatabase[shortURL] = longURL 
+  urlDatabase[shortURL].longURL = longURL  
   res.redirect("/urls");
 });
 
@@ -118,7 +113,6 @@ app.get("/login", (req,res) => {
 })
 
 app.post("/login", (req,res) => {
-  // console.log(" ++++++++++++++++++", req.body);
   const email  = req.body.email
   const password = req.body.password 
   if(email === "") {
@@ -129,7 +123,6 @@ app.post("/login", (req,res) => {
   }
   let user
   for (const userID in users) { 
-    // console.log("-------------", users[userID])
     if (email === users[userID].email && bcrypt.compareSync(password, users[userID].hashedPassword)) {
        user = users[userID]
     } 
@@ -137,28 +130,24 @@ app.post("/login", (req,res) => {
   if (!user) {
     return res.send("user not found, please register new account")
   }
-
-  // console.log("----------", user) 
-  req.session.user_id = user.id// res.cookie("user_id", user.id) 
+  req.session.user_id = user.id 
   res.redirect("/urls") 
 })
 
 
 
 app.post("/logout", (req,res) => {
-  req.session = null; //res.clearCookie("user_id") // delete request cookie, take it back and dipose
+  req.session = null; 
   res.redirect("/urls")
 })
 
 app.get('/register', (req, res) => {
-  // const userID = req.cookies["user_id"] 
   const user = users[req.session.user_id]
   const templateVars = { user }
   res.render('registration', templateVars)
 });
 
 app.post('/register', (req, res) => {
-  // console.log(req.body)
 const id = generateRandomString()
 const password = req.body.password
 const hashedPassword = bcrypt.hashSync(password, 10);
@@ -175,8 +164,7 @@ const email = req.body.email
     }
   }
 users[id] = {id: id, email: email, hashedPassword}; 
-// console.log("user after registration", users)
-req.session.user_id = id //res.cookie("user_id", id) 
+req.session.user_id = id  
 res.redirect("/urls")
 });
 

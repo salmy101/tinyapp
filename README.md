@@ -24,9 +24,20 @@ start shortening your own URLS.
 ## Screenshots
 
 ![Homepage](https://github.com/salmy101/tinyapp/blob/master/docs/homepage.png?raw=true)
+### This is the initial welcome page.
+
 
 ![Login](https://github.com/salmy101/tinyapp/blob/master/docs/login.png?raw=true)
+### This is the login page. The registration page is similar for first time users.
+
 
 ![Create TinyURL](https://github.com/salmy101/tinyapp/blob/master/docs/new.png?raw=true)
+### This is the page to create new tinyURls by adding the orginal URL you would like to shorten
+
+
+![Edit new tinyURL](https://github.com/salmy101/tinyapp/blob/master/docs/edit.png?raw=true)
+### After creating new tinyURL, the link is displayed and user has the option to edit it.
+
 
 ![My URLS](https://github.com/salmy101/tinyapp/blob/master/docs/urls-page.png?raw=true)
+### My URLS page showcases all tinyURls for the signed in user with the option to edit or delete. The user can also click the tiny url to be taken to that page!

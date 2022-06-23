@@ -6,7 +6,6 @@ const bodyParser = require("body-parser");
 const cookieParser = require('cookie-parser');
 const bcrypt = require('bcryptjs');
 const cookieSession = require('cookie-session');
-// const res = require('express/lib/response');
 app.set("view engine", "ejs");
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieParser());
@@ -105,40 +104,6 @@ app.post("/urls/:shortURL/delete", (req,res) => {
   res.redirect("/urls");
 });
 
-app.get("/login", (req,res) => {
-  const user = users[req.session.user_id];
-  const templateVars = { user };
-  res.render("login", templateVars);
-});
-
-app.post("/login", (req,res) => {
-  const email  = req.body.email;
-  const password = req.body.password;
-  const user = getUserEmail(email,users)
-  if (email === "") {
-    return res.status(400).send("email cannot be empty");
-  }
-  if (password === "") {
-    return res.status(400).send("password cannot be empty");
-  }
- 
-    if (user && bcrypt.compareSync(password, users[userID].hashedPassword)) {
-      req.session.user_id = user.id;
-      res.redirect("/urls");
-    } else {
-      return res.status(400).send("user not found, please register new account");
-
-    }
-  
-});
-
-
-
-app.post("/logout", (req,res) => {
-  req.session = null;
-  res.redirect("/urls");
-});
-
 app.get('/register', (req, res) => {
   const user = users[req.session.user_id];
   const templateVars = { user };
@@ -162,7 +127,38 @@ app.post('/register', (req, res) => {
     }
   }
   users[id] = {id: id, email: email, hashedPassword};
+  console.log("DATABASE:", users)
   req.session.user_id = id;
+  res.redirect("/urls");
+});
+
+
+app.get("/login", (req,res) => {
+  const user = users[req.session.user_id];
+  const templateVars = { user };
+  res.render("login", templateVars);
+});
+
+app.post("/login", (req,res) => {
+  const email  = req.body.email;
+  const password = req.body.password;
+  const user = getUserEmail(email,users)
+  console.log("-----------", user.hashedPassword, bcrypt.compareSync(password, user.hashedPassword), user)
+  if (user && bcrypt.compareSync(password, user.hashedPassword)) {
+    req.session.user_id = user.id;
+    res.redirect("/urls");
+  } else if (email === "") {
+    return res.status(400).send("email cannot be empty");
+  } else if (password === "") {
+    return res.status(400).send("password cannot be empty");
+  }else  {
+    return res.status(400).send("user not found, please register new account");
+  }
+});
+
+
+app.post("/logout", (req,res) => {
+  req.session = null;
   res.redirect("/urls");
 });
 

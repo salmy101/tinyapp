@@ -1,7 +1,7 @@
 const express = require('express');
-const PORT = 8080;
+const PORT = 3000;
 const app = express();
-const { generateRandomString, usersURL} = require("./helpers");
+const { generateRandomString, usersURL, getUserEmail} = require("./helpers");
 const bodyParser = require("body-parser");
 const cookieParser = require('cookie-parser');
 const bcrypt = require('bcryptjs');
@@ -114,23 +114,22 @@ app.get("/login", (req,res) => {
 app.post("/login", (req,res) => {
   const email  = req.body.email;
   const password = req.body.password;
+  const user = getUserEmail(email,users)
   if (email === "") {
     return res.status(400).send("email cannot be empty");
   }
   if (password === "") {
     return res.status(400).send("password cannot be empty");
   }
-  let user;
-  for (const userID in users) {
-    if (email === users[userID].email && bcrypt.compareSync(password, users[userID].hashedPassword)) {
-      user = users[userID];
+ 
+    if (user && bcrypt.compareSync(password, users[userID].hashedPassword)) {
+      req.session.user_id = user.id;
+      res.redirect("/urls");
+    } else {
+      return res.status(400).send("user not found, please register new account");
+
     }
-  }
-  if (!user) {
-    return res.send("user not found, please register new account");
-  }
-  req.session.user_id = user.id;
-  res.redirect("/urls");
+  
 });
 
 

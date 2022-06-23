@@ -14,7 +14,7 @@ app.use(
   cookieSession({
     name: "session",
     keys: ["this string is a secret key"],
-    maxAge: 24 * 60 * 60 * 1000, // 24 hours
+    maxAge: 24 * 60 * 60 * 1000,
   })
 );
 
@@ -58,7 +58,6 @@ app.post("/urls", (req, res) => {
   res.redirect(`urls/${shortURL}`);
 });
 
-//this route renderd the urls page, shows empty if not logged/ you logout in, shows all urls if logged in
 app.get("/urls", (req, res) => {
   let templateVars = { urls: null, user: null };
   if (req.session) {
@@ -68,7 +67,6 @@ app.get("/urls", (req, res) => {
   res.render("urls_index", templateVars);
 });
 
-//this route renders the submission form urls_new to user
 app.get("/urls/new", (req, res) => {
   const user = users[req.session.user_id];
   if (!user) {
@@ -79,7 +77,6 @@ app.get("/urls/new", (req, res) => {
   }
 });
 
-//this route will direct us to the longURL
 app.get("/u/:shortURL", (req, res) => {
   const longURL = urlDatabase[req.params.shortURL];
   res.redirect(longURL);
@@ -106,7 +103,9 @@ app.post("/urls/:shortURL/delete", (req, res) => {
     delete urlDatabase[req.params.shortURL];
     res.redirect("/urls");
   } else {
-    return res.status(404).send("Nice try slick, but you cannot delete this! #BOZO");
+    return res
+      .status(404)
+      .send("Nice try slick, but you cannot delete this! #BOZO");
   }
 
   res.redirect("/urls");

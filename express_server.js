@@ -104,7 +104,7 @@ app.post("/urls/:shortURL/delete", (req, res) => {
     res.redirect("/urls");
   } else {
     return res
-      .status(404)
+      .status(401)
       .send("Nice try slick, but you cannot delete this! #BOZO");
   }
 

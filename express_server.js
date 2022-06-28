@@ -107,8 +107,6 @@ app.post("/urls/:shortURL/delete", (req, res) => {
       .status(401)
       .send("Nice try slick, but you cannot delete this! #BOZO");
   }
-
-  res.redirect("/urls");
 });
 
 app.get("/register", (req, res) => {

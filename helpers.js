@@ -16,7 +16,6 @@ const getUserEmail = function (email, users) {
   for (let userID in users) {
     if (users[userID].email === email) {
       user = users[userID];
-      console.log("++++++", user);
       return user;
     }
   }

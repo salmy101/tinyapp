@@ -1,5 +1,5 @@
 const express = require("express");
-const PORT = 3000;
+const PORT = 8080;
 const app = express();
 const { generateRandomString, usersURL, getUserEmail } = require("./helpers");
 const bodyParser = require("body-parser");
@@ -18,29 +18,31 @@ app.use(
   })
 );
 
-const urlDatabase = {
-  b6UTxQ: {
-    longURL: "https://www.tsn.ca",
-    userID: "aJ48lW",
-  },
-  i3BoGr: {
-    longURL: "https://www.google.ca",
-    userID: "aJ48lW",
-  },
-};
+const urlDatabase = {};
+// const urlDatabase = {
+//   b6UTxQ: {
+//     longURL: "https://www.tsn.ca",
+//     userID: "aJ48lW",
+//   },
+//   i3BoGr: {
+//     longURL: "https://www.google.ca",
+//     userID: "aJ48lW",
+//   },
+// };
 
-const users = {
-  a1: {
-    id: "a1",
-    email: "a@a.com",
-    password: "123",
-  },
-  user2RandomID: {
-    id: "user2RandomID",
-    email: "user2@example.com",
-    password: "dishwasher-funk",
-  },
-};
+const users = {};
+// const users = {
+//   a1: {
+//     id: "a1",
+//     email: "a@a.com",
+//     password: "123",
+//   },
+//   user2RandomID: {
+//     id: "user2RandomID",
+//     email: "user2@example.com",
+//     password: "dishwasher-funk",
+//   },
+// };
 
 app.get("/", (req, res) => {
   res.redirect("/urls");
@@ -83,11 +85,19 @@ app.get("/u/:shortURL", (req, res) => {
 });
 
 app.get("/urls/:shortURL", (req, res) => {
+  console.log(req.session);
+  console.log("I AM HERE");
   const user = users[req.session.user_id];
-  const shortURL = req.params.shortURL;
-  const longURL = urlDatabase[shortURL].longURL;
-  const templateVars = { shortURL, longURL, user };
-  res.render("urls_show", templateVars);
+  if (user) {
+    const shortURL = req.params.shortURL;
+    const longURL = urlDatabase[shortURL].longURL;
+    const templateVars = { shortURL, longURL, user };
+    res.render("urls_show", templateVars);
+    // templateVars.user = users[req.session.user_id];
+    // templateVars.urls = usersURL(req.session.user_id, urlDatabase);
+  } else {
+    res.redirect("/login");
+  }
 });
 
 app.post("/urls/:shortURL", (req, res) => {
@@ -146,7 +156,8 @@ app.post("/login", (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
   const user = getUserEmail(email, users);
-  if (user && bcrypt.compareSync(password, user.hashedPassword)) {
+  console.log(user);
+  if (user && user.hashedPassword && bcrypt.compareSync(password, user.hashedPassword)) {
     req.session.user_id = user.id;
     res.redirect("/urls");
   } else if (email === "") {

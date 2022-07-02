@@ -59,7 +59,7 @@ app.get("/urls/new", (req, res) => {
 
 //this route will redirect you to the longURL
 app.get("/u/:shortURL", (req, res) => {
-  const longURL = urlDatabase[req.params.shortURL];
+  const longURL = urlDatabase[req.params.shortURL].longURL;
   res.redirect(longURL);
 });
 
